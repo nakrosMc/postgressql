@@ -1,40 +1,29 @@
-CREATE TABLE priorities(
-id_priority SERIAL PRIMARY KEY,
-type_name VARCHAR(50)
-);
-
 CREATE TABLE countries(
-id_country SERIAL PRIMARY KEY,
-name VARCHAR(50)
+  id_country SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL  
 );
 
-CREATE TABLE contact_request(
-id_email VARCHAR(100) UNIQUE PRIMARY KEY,
-id_country INTEGER NOT NULL,
-id_priority INTEGER NOT NULL,
-name VARCHAR(50),
-detail VARCHAR(300),
-physical_address VARCHAR(300),
-FOREIGN KEY (id_country) REFERENCES countries (id_country),
-FOREIGN KEY (id_priority) REFERENCES priorities (id_priority)
+CREATE TABLE users(
+ id_users SERIAL PRIMARY KEY,
+ id_country INTEGER NOT NULL,
+ email VARCHAR(100) NOT NULL,
+ name VARCHAR(50) NOT NULL,
+ FOREIGN KEY (id_country) REFERENCES countries (id_country)   
 );
 
-INSERT INTO countries (name) VALUES
-  ('Argentina'),
-  ('Brazil'),
-  ('Canada'),
-  ('France'),
-  ('Germany');
-  
-INSERT INTO priorities (type_name) VALUES
-  ('High'),
-  ('Medium'),
-  ('Low');
-  
-INSERT INTO contact_request (id_email, id_country, id_priority, name, detail, physical_address) VALUES
-  ('john@example.com', 1, 1, 'John', 'Urgent request for assistance', '123 Main Street'),
-  ('jane@example.com', 2, 2, 'Jane', 'Information request', '456 Elm Street'),
-  ('david@example.com', 3, 3, 'David', 'General inquiry', '789 Oak Avenue');
-  
-DELETE FROM contact_request where id_email = 'david@example.com';
-UPDATE contact_request SET name = 'Leon' where id_email = 'john@example.com';
+INSERT INTO countries (name) VALUES ('argentina'), ('colombia'), ('chile');
+SELECT * FROM countries;
+
+INSERT INTO users (id_country, email, name) 
+VALUES (2, 'foo@foo.com', 'fooziman'), (3, 'bar@bar.com', 'barziman'); 
+SELECT * FROM users;
+
+DELETE FROM users WHERE email = 'bar@bar.com';
+
+UPDATE users SET email = 'foo@foo.foo', name = 'fooz' WHERE id_users = 1;
+SELECT * FROM users;
+
+SELECT * FROM users INNER JOIN countries ON users.id_country = countries.id_country;
+
+SELECT u.id_users AS id, u.email, u.name AS fullname, c.name
+FROM users u JOIN countries c ON u.id_country = c.id_country;

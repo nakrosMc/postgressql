@@ -32,7 +32,9 @@ INSERT INTO priorities (type_name) VALUES
   ('Low');
   
 INSERT INTO contact_request (id_email, id_country, id_priority, name, detail, physical_address) VALUES
-  ('john@example.com', 1, 1, 'John Doe', 'Urgent request for assistance', '123 Main Street'),
-  ('jane@example.com', 2, 2, 'Jane Smith', 'Information request', '456 Elm Street'),
-  ('david@example.com', 3, 3, 'David Brown', 'General inquiry', '789 Oak Avenue');
+  ('john@example.com', 1, 1, 'John', 'Urgent request for assistance', '123 Main Street'),
+  ('jane@example.com', 2, 2, 'Jane', 'Information request', '456 Elm Street'),
+  ('david@example.com', 3, 3, 'David', 'General inquiry', '789 Oak Avenue');
   
+DELETE FROM contact_request where id_email = 'david@example.com';
+UPDATE contact_request SET name = 'Leon' where id_email = 'john@example.com';
