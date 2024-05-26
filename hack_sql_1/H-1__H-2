@@ -1,0 +1,40 @@
+CREATE TABLE priorities(
+id_priority SERIAL PRIMARY KEY,
+type_name VARCHAR(50)
+);
+
+CREATE TABLE countries(
+id_country SERIAL PRIMARY KEY,
+name VARCHAR(50)
+);
+
+CREATE TABLE contact_request(
+id_email VARCHAR(100) UNIQUE PRIMARY KEY,
+id_country INTEGER NOT NULL,
+id_priority INTEGER NOT NULL,
+name VARCHAR(50),
+detail VARCHAR(300),
+physical_address VARCHAR(300),
+FOREIGN KEY (id_country) REFERENCES countries (id_country),
+FOREIGN KEY (id_priority) REFERENCES priorities (id_priority)
+);
+
+INSERT INTO countries (name) VALUES
+  ('Argentina'),
+  ('Brazil'),
+  ('Canada'),
+  ('France'),
+  ('Germany');
+  
+INSERT INTO priorities (type_name) VALUES
+  ('High'),
+  ('Medium'),
+  ('Low');
+  
+INSERT INTO contact_request (id_email, id_country, id_priority, name, detail, physical_address) VALUES
+  ('john@example.com', 1, 1, 'John', 'Urgent request for assistance', '123 Main Street'),
+  ('jane@example.com', 2, 2, 'Jane', 'Information request', '456 Elm Street'),
+  ('david@example.com', 3, 3, 'David', 'General inquiry', '789 Oak Avenue');
+  
+DELETE FROM contact_request where id_email = 'david@example.com';
+UPDATE contact_request SET name = 'Leon' where id_email = 'john@example.com';
