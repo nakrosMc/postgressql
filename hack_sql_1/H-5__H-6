@@ -1,0 +1,191 @@
+CREATE TABLE countries(
+  id_country SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE roles(
+  id_role SERIAL PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE taxes(
+  id_tax SERIAL PRIMARY KEY,
+  percentage DECIMAL(5, 2) NOT NULL
+);
+
+CREATE TABLE offers(
+  id_offer SERIAL PRIMARY KEY,
+  status BOOLEAN NOT NULL
+);
+
+CREATE TABLE discounts(
+  id_discount SERIAL PRIMARY KEY,
+  status BOOLEAN NOT NULL,
+  percentage DECIMAL(5, 2)
+);
+
+CREATE TABLE payments(
+  id_payment SERIAL PRIMARY KEY,
+  type VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE customers(
+  id_customer SERIAL PRIMARY KEY,
+  email VARCHAR(100) UNIQUE NOT NULL,
+  id_country INTEGER,
+  id_role INTEGER,
+  name VARCHAR(50) NOT NULL,
+  age INTEGER NOT NULL,
+  password VARCHAR(64) NOT NULL,
+  physical_address VARCHAR(100) NOT NULL,
+  FOREIGN KEY (id_country) REFERENCES countries(id_country),
+  FOREIGN KEY (id_role) REFERENCES roles(id_role)
+);
+
+CREATE TABLE invoice_status(
+  id_invoice_status SERIAL PRIMARY KEY,
+  status BOOLEAN NOT NULL
+);
+
+CREATE TABLE products(
+  id_product SERIAL PRIMARY KEY,
+  id_discount INTEGER,
+  id_offer INTEGER,
+  id_tax INTEGER,
+  name VARCHAR(50) NOT NULL,
+  details VARCHAR(200) NOT NULL,
+  minimum_stock INTEGER NOT NULL,
+  maximum_stock INTEGER NOT NULL,
+  current_stock INTEGER NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  price_with_tax DECIMAL(10, 2),
+  FOREIGN KEY (id_discount) REFERENCES discounts(id_discount),
+  FOREIGN KEY (id_offer) REFERENCES offers(id_offer),
+  FOREIGN KEY (id_tax) REFERENCES taxes(id_tax)
+);
+
+CREATE TABLE products_customers(
+  id_customer INTEGER,
+  id_product INTEGER,
+  FOREIGN KEY (id_customer) REFERENCES customers(id_customer),
+  FOREIGN KEY (id_product) REFERENCES products(id_product),
+  PRIMARY KEY (id_customer, id_product)
+);
+
+CREATE TABLE invoices(
+  id_invoice SERIAL PRIMARY KEY,
+  id_customer INTEGER,
+  id_payment INTEGER,
+  id_invoice_status INTEGER,
+  date DATE NOT NULL,
+  total_to_pay DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (id_customer) REFERENCES customers(id_customer),
+  FOREIGN KEY (id_payment) REFERENCES payments(id_payment),
+  FOREIGN KEY (id_invoice_status) REFERENCES invoice_status(id_invoice_status)
+);
+
+CREATE TABLE orders(
+  id_order SERIAL PRIMARY KEY,
+  id_invoice INTEGER,
+  id_product INTEGER,
+  detail VARCHAR(300) NOT NULL,
+  amount INTEGER NOT NULL,
+  price DECIMAL(10, 2) NOT NULL,
+  FOREIGN KEY (id_invoice) REFERENCES invoices(id_invoice),
+  FOREIGN KEY (id_product) REFERENCES products(id_product)
+);
+
+INSERT INTO countries (name) VALUES ('Venezuela'), ('Brazil'), ('Mexico');
+
+INSERT INTO roles (name) VALUES ('Admin'), ('User'), ('Guest');
+
+INSERT INTO taxes (percentage) VALUES (5.00), (10.00), (15.00);
+
+INSERT INTO offers (status) VALUES (true), (false), (true);
+
+INSERT INTO discounts (status, percentage) VALUES (true, 10.00), (false, 0.00), (true, 20.00);
+
+INSERT INTO payments (type) VALUES ('Credit Card'), ('Cash'), ('Bank Transfer');
+
+INSERT INTO customers (email, id_country, id_role, name, age, password, physical_address)
+VALUES 
+('juan@example.com', 1, 1, 'Juan', 25, '259854a', '123 Maple Street'),
+('carlos2@example.com', 2, 2, 'Carlos', 30, 'carlitos2512', '456 Elm Avenue'),
+('miguelk@example.com', 3, 3, 'Miguel', 35, 'migueeldon58', '789 Oak Drive');
+
+INSERT INTO invoice_status (status) VALUES (true), (false), (true);
+
+INSERT INTO products (id_discount, id_offer, id_tax, name, details, minimum_stock, maximum_stock, current_stock, price, price_with_tax)
+VALUES 
+(1, 1, 1, 'Laptop XYZ', 'High-performance laptop with 16GB RAM and 512GB SSD', 10, 100, 50, 1000.00, 1050.00),
+(2, 2, 2, 'Gaming Mouse ABC', 'Ergonomic gaming mouse with RGB lighting and 16000 DPI', 20, 200, 150, 50.00, 55.00),
+(3, 3, 3, 'Mechanical Keyboard 123', 'Mechanical keyboard with Cherry MX switches and customizable RGB', 30, 300, 250, 150.00, 165.00);
+
+INSERT INTO products_customers (id_customer, id_product)
+VALUES 
+(1, 1), 
+(2, 2), 
+(3, 3);
+
+INSERT INTO invoices (id_customer, id_payment, id_invoice_status, date, total_to_pay)
+VALUES 
+(1, 1, 1, '2024-05-25', 210.00), 
+(2, 2, 2, '2024-05-26', 660.00), 
+(3, 3, 3, '2024-05-27', 345.00);
+
+INSERT INTO orders (id_invoice, id_product, detail, amount, price)
+VALUES 
+(1, 1, 'Laptop XYZ - High-performance laptop with 16GB RAM and 512GB SSD', 2, 2000.00), 
+(2, 2, 'Gaming Mouse ABC - Ergonomic gaming mouse with RGB lighting and 16000 DPI', 3, 150.00), 
+(3, 3, 'Mechanical Keyboard 123 - Mechanical keyboard with Cherry MX switches and customizable RGB', 1, 150.00);
+
+DELETE FROM orders
+WHERE id_invoice IN (
+    SELECT id_invoice
+    FROM invoices
+    WHERE id_customer = (
+        SELECT id_customer
+        FROM customers
+        ORDER BY id_customer
+        LIMIT 1
+    )
+);
+
+
+DELETE FROM invoices
+WHERE id_customer = (
+    SELECT id_customer
+    FROM customers
+    ORDER BY id_customer
+    LIMIT 1
+);
+
+DELETE FROM products_customers
+WHERE id_customer = (
+    SELECT id_customer
+    FROM customers
+    ORDER BY id_customer
+    LIMIT 1
+);
+
+DELETE FROM customers
+WHERE id_customer = (
+    SELECT id_customer
+    FROM customers
+    ORDER BY id_customer
+    LIMIT 1
+);
+
+
+UPDATE customers
+SET email = 'miguelito@xample.com',
+    physical_address = '123 New Street, New City',
+    age = 30,
+    password = 'miguelito2507'
+where id_customer = 3;
+
+UPDATE taxes
+SET percentage = 10.00;
+
+UPDATE products
+SET price = price * 1.1;
